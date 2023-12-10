@@ -41,8 +41,10 @@ dependencies:
   path: ^1.8.3
   google_maps_flutter: ^2.5.0
   geolocator: ^10.1.0
-  baseflow_plugin_template: ^2.1.2
   geocoding: ^2.1.1
+  url_launcher: ^6.2.2
+  fluttertoast: ^8.2.4
+
 
 
 
