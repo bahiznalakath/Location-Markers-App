@@ -1,11 +1,11 @@
 class LocationModel {
   int? id;
-  String latitude;
-  String longitude;
-  String postalCode;
-  String street;
-  String subLocality;
-  String country;
+  final String latitude;
+  final String longitude;
+  final String postalCode;
+  final String street;
+  final String subLocality;
+  final String country;
 
   LocationModel({
     this.id,
@@ -17,47 +17,23 @@ class LocationModel {
     required this.country,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id?.toString(),
-      'latitude': latitude,
-      'longitude': longitude,
-      'postalCode': postalCode,
-      'street': street,
-      'subLocality': subLocality,
-      'country': country,
-    };
-  }
+  static LocationModel fromMap(Map<String, Object?> map) {
+    final id = map['id'] as int?;
+    final latitude = map['latitude'] as String;
+    final longitude = map['longitude'] as String;
+    final postalCode = map['postalCode'] as String;
+    final street = map['street'] as String;
+    final subLocality = map['subLocality'] as String;
+    final country = map['country'] as String;
 
-  factory LocationModel.fromJson(Map<String, dynamic> json) {
     return LocationModel(
-      id: json['id'] != null ? int.parse(json['id']) : null,
-      latitude: json['latitude'],
-      longitude: json['longitude'],
-      postalCode: json['postalCode'],
-      street: json['street'],
-      subLocality: json['subLocality'],
-      country: json['country'],
-    );
-  }
-
-  LocationModel copyWith({
-    int? id,
-    String? latitude,
-    String? longitude,
-    String? postalCode,
-    String? street,
-    String? subLocality,
-    String? country,
-  }) {
-    return LocationModel(
-      id: id ?? this.id,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-      postalCode: postalCode ?? this.postalCode,
-      street: street ?? this.street,
-      subLocality: subLocality ?? this.subLocality,
-      country: country ?? this.country,
+      id: id,
+      latitude: latitude,
+      longitude: longitude,
+      postalCode: postalCode,
+      street: street,
+      subLocality: subLocality,
+      country: country,
     );
   }
 }

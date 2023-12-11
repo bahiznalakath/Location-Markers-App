@@ -1,15 +1,17 @@
-// ignore_for_file: unused_local_variable
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import '../Provider/databaseController.dart';
-import '../model/model_class.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:location_markers_app/Provider/databaseController.dart';
+import 'package:provider/provider.dart';
+import '../Provider/locationController.dart';
+import 'AddressListingWidget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    getAllLocation();
     final ht = MediaQuery.sizeOf(context).height;
     final wt = MediaQuery.sizeOf(context).width;
     return Scaffold(
@@ -22,10 +24,30 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  var prov =
+                      Provider.of<LocationProvider>(context, listen: false);
+
+                  try {
+                    final position = await prov.GetCurrentLocation();
+                    await prov.updateLocation(position);
+                    Fluttertoast.showToast(
+                      msg: 'Loading Your Current Address',
+                      backgroundColor: Colors.black,
+                    );
+                    prov.Livelocation(context);
+                    await Fluttertoast.showToast(
+                      msg: 'Showing  Your Current Address',
+                      backgroundColor: Colors.black,
+                    );
+                  } on Exception catch (error) {
+                    if (kDebugMode) {
+                      print(error);
+                    } else {}
+                  }
                   Navigator.pushNamed(context, '/add_location');
                 },
-                child: const Text('Add Location'),
+                child: const Text('Mark Location'),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -35,56 +57,12 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
+          const Text("History of Marked Location"),
           Container(
             height: ht * 0.81,
             width: wt * 0.95,
             color: Colors.grey,
-            child: FutureBuilder<List<LocationModel>>(
-          // Fetch the list of saved locations from the database
-          future: DataBaseController.instance.readAllLocations(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text('No locations saved yet.'),
-          );
-        } else {
-          // Display the list of saved locations
-          return Container(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                const Text(
-                  'History of Locations',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const Divider(),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      LocationModel location = snapshot.data![index];
-                      return ListTile(
-                        title: Text('Latitude: ${location.latitude}'),
-                        subtitle: Text('Longitude: ${location.longitude}'),
-                        // Add more details if needed
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-      },
-    ),
+            child: const AddressListingWidget(),
           )
         ],
       ),

@@ -12,30 +12,9 @@ class AddLocation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ht = MediaQuery
-        .sizeOf(context)
-        .height;
-    final wt = MediaQuery
-        .sizeOf(context)
-        .width;
+    final ht = MediaQuery.sizeOf(context).height;
+    final wt = MediaQuery.sizeOf(context).width;
     return Scaffold(
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var prov = Provider.of<LocationProvider>(context, listen: false);
-
-          try {
-            final position = await prov.GetCurrentLocation();
-            prov.updateLocation(position);
-          } on Exception catch (error) {
-            if (kDebugMode) {
-              print(error);
-            }
-          }
-          prov.Livelocation(context);
-        },
-        child: const Icon(Icons.add_location_rounded),
-      ),
       appBar: AppBar(
         title: const Text("AddLocation"),
       ),
@@ -75,9 +54,7 @@ class AddLocation extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Text(
-                      'Your Current Address is : ${locationProvider
-                          .postcode}${locationProvider.street}${locationProvider
-                          .country}${locationProvider.sublocality}',
+                      'Your Current Address is : ${locationProvider.postcode}${locationProvider.street}${locationProvider.country}${locationProvider.sublocality}',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 25),
                     ),
@@ -90,46 +67,31 @@ class AddLocation extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ElevatedButton(onPressed: () async {
-                          var locationProvider = Provider.of<LocationProvider>(context, listen: false);
-
-                          // Create a LocationModel with the current data
-                          LocationModel locationModel = LocationModel(
-                            latitude: locationProvider.Latitude,
-                            longitude: locationProvider.Longitude,
-                            postalCode: locationProvider.postcode,
-                            street: locationProvider.street,
-                            subLocality: locationProvider.sublocality,
-                            country: locationProvider.country,
-                          );
-
-                          // Save the location to the database
-                          try {
-                            await DataBaseController.instance.create(locationModel);
-                            Fluttertoast.showToast(
-                              msg: 'Location saved successfully!',
-                              backgroundColor: Colors.green,
-                            );
-                          } catch (error) {
-                            Fluttertoast.showToast(
-                              msg: 'Error saving location: $error',
-                              backgroundColor: Colors.red,
-                            );
-                          }
-
-                          // Pop the screen
-                          Navigator.pop(context);
-                        }, child: const Text("Save Your Location")),
-
-                        ElevatedButton(onPressed: () async {
-                          Fluttertoast.showToast(
-                            msg: 'Opening Your Current Location In Google Map',
-                            backgroundColor: Colors.black,
-                          );
-                         await  locationProvider.openMap(locationProvider.Latitude,
-                              locationProvider.Longitude);
-                        }, child: const Text("Open Location In Google Map")),
-                      ],),
+                        ElevatedButton(
+                            onPressed: () async {
+                              await locationProvider.savedata();
+                              await Fluttertoast.showToast(
+                                msg:
+                                'Saved  Your Current Location ',
+                                backgroundColor: Colors.black,
+                              );
+                              Navigator.pop(context);
+                            },
+                            child: const Text("Save Your Location")),
+                        ElevatedButton(
+                            onPressed: () async {
+                              Fluttertoast.showToast(
+                                msg:
+                                    'Opening Your Current Location In Google Map',
+                                backgroundColor: Colors.black,
+                              );
+                              await locationProvider.openMap(
+                                  locationProvider.Latitude,
+                                  locationProvider.Longitude);
+                            },
+                            child: const Text("Open Location In Google Map")),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: ht * .01,

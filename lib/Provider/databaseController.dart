@@ -1,94 +1,50 @@
+import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../model/model_class.dart';
 
-class DataBaseController {
-  static final DataBaseController instance = DataBaseController._init();
-  static Database? _database;
-  static const String tableLocationModel = 'LocationModel';
+ValueNotifier<List<LocationModel>> locationListNotifier = ValueNotifier([]);
+late Database _db;
 
-  DataBaseController._init();
+Future<void> initDataBase() async {
+  _db = await openDatabase('location.db', version: 1,
+      onCreate: (Database db, int version) async {
+    await db.execute(
+        'CREATE TABLE Location (id INTEGER PRIMARY KEY, latitude TEXT, longitude TEXT, postalCode TEXT, street TEXT, subLocality TEXT, country TEXT)');
+  });
+}
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB('location.db');
-    return _database!;
-  }
+Future<void> addLocation(LocationModel value) async {
+  await _db.rawInsert(
+      'INSERT INTO Location(latitude, longitude, postalCode, street, subLocality, country) VALUES(?,?,?,?,?,?)',
+      [
+        value.latitude,
+        value.longitude,
+        value.postalCode,
+        value.street,
+        value.subLocality,
+        value.country,
+      ]);
+  getAllLocation();
+  locationListNotifier
+      .notifyListeners(); // Notify listeners that the list has changed
+}
 
-  Future<Database> _initDB(String fillPath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, fillPath);
-    return await openDatabase(path, version: 1, onCreate: _createDB);
-  }
+Future<void> getAllLocation() async {
+  final _values = await _db.rawQuery("SELECT * FROM Location");
+  print(_values);
+  locationListNotifier.value.clear();
+  _values.forEach((map) {
+    final student = LocationModel.fromMap(map);
+    locationListNotifier.value.add(student); // Add the student to the list
+    locationListNotifier.notifyListeners();
+  });
+}
 
-  Future _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE $tableLocationModel (
-        id INTEGER PRIMARY KEY,
-        latitude REAL NOT NULL,
-        longitude REAL NOT NULL,
-        postalCode TEXT NOT NULL,
-        street TEXT NOT NULL,
-        subLocality TEXT NOT NULL,
-        country TEXT NOT NULL
-      )
-    ''');
-  }
-
-  Future<LocationModel> create(LocationModel locationModel) async {
-    final db = await instance.database;
-    final id = await db.insert(tableLocationModel, locationModel.toJson());
-    final createdLocation = locationModel.copyWith(id: id);
-    return createdLocation;
-  }
-
-  Future<int> update(LocationModel locationModel) async {
-    final db = await instance.database;
-
-    return db.update(
-      tableLocationModel,
-      locationModel.toJson(),
-      where: 'id = ?',
-      whereArgs: [locationModel.id],
-    );
-  }
-
-  Future<LocationModel> readLocation(int id) async {
-    final db = await instance.database;
-
-    final maps = await db.query(
-      tableLocationModel,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    if (maps.isNotEmpty) {
-      return LocationModel.fromJson(maps.first);
-    } else {
-      throw Exception('ID $id not found');
-    }
-  }
-
-  Future<List<LocationModel>> readAllLocations() async {
-    final db = await instance.database;
-
-    final orderBy = 'id';
-    final result = await db.query(tableLocationModel, orderBy: orderBy);
-
-    return result.map((json) => LocationModel.fromJson(json)).toList();
-  }
-
-  Future<int> delete(int id) async {
-    final db = await instance.database;
-    return await db.delete(
-      tableLocationModel,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  Future close() async {
-    final db = await instance.database;
-    db.close();
-  }
+Future<void> deleteLocation(int id) async {
+  await _db.delete('Location', where: 'id = ?', whereArgs: [
+    id
+  ]); // Delete the student with the specified ID from the database
+  getAllLocation();
+  // Refresh the student list
 }

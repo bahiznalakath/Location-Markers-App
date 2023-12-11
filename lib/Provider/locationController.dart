@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:location_markers_app/Provider/databaseController.dart';
+import 'package:location_markers_app/model/model_class.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class LocationProvider with ChangeNotifier {
@@ -14,27 +16,6 @@ class LocationProvider with ChangeNotifier {
   bool _locationFetched = true;
 
   bool get locationFetched => _locationFetched;
-
-
-  Future<void> updateLocation(Position position) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-    Placemark place = placemarks[0];
-    Latitude = '${position.latitude}';
-    Longitude = '${position.longitude}';
-    postcode = '${place.postalCode}';
-    street =
-        "${place.street},${place.subAdministrativeArea},${place.administrativeArea}";
-    sublocality = "${place.subLocality}";
-    country = "${place.country}";
-
-    if (!_locationFetched) {
-      _locationFetched = true;
-      notifyListeners();
-    }
-  }
 
   Future<Position> GetCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -57,6 +38,26 @@ class LocationProvider with ChangeNotifier {
     return await Geolocator.getCurrentPosition();
   }
 
+  Future<void> updateLocation(Position position) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
+    Placemark place = placemarks[0];
+    Latitude = '${position.latitude}';
+    Longitude = '${position.longitude}';
+    postcode = '${place.postalCode}';
+    street =
+        "${place.street},${place.subAdministrativeArea},${place.administrativeArea}";
+    sublocality = "${place.subLocality}";
+    country = "${place.country}";
+
+    if (!_locationFetched) {
+      _locationFetched = true;
+      notifyListeners();
+    }
+  }
+
   void Livelocation(BuildContext context) async {
     try {
       Geolocator.getPositionStream(
@@ -71,6 +72,7 @@ class LocationProvider with ChangeNotifier {
       print(error);
     }
   }
+
   Future<void> openMap(String lat, String long) async {
     String googleURL =
         "https://www.google.com/maps/search/?api=1&query=$lat,$long";
@@ -79,4 +81,15 @@ class LocationProvider with ChangeNotifier {
         : throw "Could not launch $googleURL";
   }
 
+  Future<void> savedata() async {
+    final _savedData = LocationModel(
+        latitude: Latitude,
+        longitude: Longitude,
+        postalCode: postcode,
+        street: street,
+        subLocality: sublocality,
+        country: country);
+    print(_savedData);
+    addLocation(_savedData);
+  }
 }
