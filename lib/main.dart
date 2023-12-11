@@ -54,7 +54,9 @@ Future<Position> _determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
   if (!serviceEnabled) {
+    Geolocator.openLocationSettings();
     return Future.error('Location services are disabled.');
   }
   permission = await Geolocator.checkPermission();
@@ -63,6 +65,7 @@ Future<Position> _determinePosition() async {
     if (permission == LocationPermission.denied) {
       return Future.error('Location permissions are denied');
     }
+
   }
   if (permission == LocationPermission.deniedForever) {
     return Future.error(

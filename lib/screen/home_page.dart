@@ -57,7 +57,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const Text("History of Marked Location"),
+          const Text("History of Marked Location",style: TextStyle(fontSize: 22),),
           Container(
             height: ht * 0.81,
             width: wt * 0.95,

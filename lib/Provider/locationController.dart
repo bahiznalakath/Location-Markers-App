@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location_markers_app/Provider/databaseController.dart';
 import 'package:location_markers_app/model/model_class.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -16,10 +17,14 @@ class LocationProvider with ChangeNotifier {
   bool _locationFetched = true;
 
   bool get locationFetched => _locationFetched;
-
+  //  final CameraPosition _kGoogle = const CameraPosition(
+  //   target: LatLng(),
+  //   zoom: 14.4746,
+  // );
   Future<Position> GetCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      // Geolocator.openLocationSettings();
       throw Exception('Location services are disabled.');
     }
 
