@@ -51,15 +51,22 @@ class HomeScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
+                  Fluttertoast.showToast(
+                    msg: 'Google Map Loading....',
+                    backgroundColor: Colors.black,
+                  );
                   Navigator.pushNamed(context, '/locations_map');
                 },
                 child: const Text('Locations Map'),
               ),
             ],
           ),
-          const Text("History of Marked Location",style: TextStyle(fontSize: 22),),
+          const Text(
+            "History of Marked Location",
+            style: TextStyle(fontSize: 12),
+          ),
           Container(
-            height: ht * 0.81,
+            height: ht * 0.78,
             width: wt * 0.95,
             color: Colors.grey,
             child: const AddressListingWidget(),

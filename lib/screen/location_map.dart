@@ -16,22 +16,33 @@ class LocationMap extends StatefulWidget {
 class _LocationMapState extends State<LocationMap> {
   Completer<GoogleMapController> _controller = Completer();
 
-  static const CameraPosition _kGoogle = CameraPosition(
-    target: LatLng(11.043428, 75.8856747),
-    zoom: 14.4746,
-  );
+  // static const CameraPosition _kGoogle = CameraPosition(
+  //   target: LatLng(11.043428, 75.8856747),
+  //   zoom: 14.4746,
+  // );
 
   @override
   Widget build(BuildContext context) {
+    getAllLocation();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Google Maps"),
       ),
       body: ValueListenableBuilder<List<LocationModel>>(
         valueListenable: locationListNotifier,
-        builder: (BuildContext context, List<LocationModel> locationList, Widget? child) {
+        builder: (BuildContext context, List<LocationModel> locationList,
+            Widget? child) {
+          final currentLocationProvider =
+              Provider.of<LocationProvider>(context);
+          double currentLatitude =
+              double.tryParse(currentLocationProvider.Latitude) ?? 0.0;
+          double currentLongitude =
+              double.tryParse(currentLocationProvider.Longitude) ?? 0.0;
           return GoogleMap(
-            initialCameraPosition: _kGoogle,
+            initialCameraPosition: CameraPosition(
+              target: LatLng(currentLatitude, currentLongitude),
+              zoom: 2,
+            ),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
             },
@@ -42,19 +53,22 @@ class _LocationMapState extends State<LocationMap> {
     );
   }
 
-  Set<Marker> _buildMarkers(List<LocationModel> locationList, BuildContext context) {
+  Set<Marker> _buildMarkers(
+      List<LocationModel> locationList, BuildContext context) {
     Set<Marker> markers = Set();
 
-    // Add a green marker for the current location
     final currentLocationProvider = Provider.of<LocationProvider>(context);
-    double currentLatitude = double.tryParse(currentLocationProvider.Latitude) ?? 0.0;
-    double currentLongitude = double.tryParse(currentLocationProvider.Longitude) ?? 0.0;
+    double currentLatitude =
+        double.tryParse(currentLocationProvider.Latitude) ?? 0.0;
+    double currentLongitude =
+        double.tryParse(currentLocationProvider.Longitude) ?? 0.0;
 
     markers.add(Marker(
-      markerId: MarkerId("currentLocation"),
+
+      markerId: const MarkerId("Marked Location"),
       position: LatLng(currentLatitude, currentLongitude),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: InfoWindow(title: "Current Location"),
+      infoWindow: const InfoWindow(title: "Current Location"),
     ));
 
     // Add red markers for saved locations
@@ -66,11 +80,10 @@ class _LocationMapState extends State<LocationMap> {
         markerId: MarkerId(location.id.toString()),
         position: LatLng(savedLatitude, savedLongitude),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        infoWindow: InfoWindow(title: "Saved Location"),
+        infoWindow: const InfoWindow(title: "Saved Location"),
       ));
     }
 
     return markers;
   }
-
 }

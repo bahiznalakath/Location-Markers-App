@@ -4,9 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location_markers_app/Provider/locationController.dart';
 import 'package:provider/provider.dart';
 
-import '../Provider/databaseController.dart';
-import '../model/model_class.dart';
-
 class AddLocation extends StatelessWidget {
   const AddLocation({Key? key}) : super(key: key);
 
@@ -34,7 +31,7 @@ class AddLocation extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(15.0),
-                    child: Row(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
@@ -71,8 +68,7 @@ class AddLocation extends StatelessWidget {
                             onPressed: () async {
                               await locationProvider.savedata();
                               await Fluttertoast.showToast(
-                                msg:
-                                'Saved  Your Current Location ',
+                                msg: 'Saved  Your Current Location ',
                                 backgroundColor: Colors.black,
                               );
                               Navigator.pop(context);
@@ -89,7 +85,7 @@ class AddLocation extends StatelessWidget {
                                   locationProvider.Latitude,
                                   locationProvider.Longitude);
                             },
-                            child: const Text("Open Location In Google Map")),
+                            child: const Text("Open In Google Map")),
                       ],
                     ),
                   ),

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import '../model/model_class.dart';
 
 ValueNotifier<List<LocationModel>> locationListNotifier = ValueNotifier([]);
